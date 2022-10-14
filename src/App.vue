@@ -1,16 +1,42 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <form @submit.prevent="searchItunes(searchText)">
+    <input type="text" v-model="searchText" />
+    <button @click="searchItunes(searchText)">Search</button>
+    <div v-if="data.results">
+      <div v-for="album in data.results" :key="album.artistId">
+        <h3>Album Name: {{album.collectionName}}</h3>
+        <h5>ArtWork</h5>
+        <img :src="album.artworkUrl100" alt="">
+        <h5>Price: {{album.collectionPrice}}</h5>
+        <TheShowAlbum :album="album" />
+      </div>
+    </div>
+  </form>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import {itunesSearch} from './services/iTunesAPI'
+import {ItunesTypes} from './types/itunesTypes.interface'
+import TheShowAlbum from './components/TheShowAlbum.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
-    HelloWorld
+    TheShowAlbum
+  },
+  data() {
+    return {
+      data: {} as ItunesTypes,
+      searchText: ""
+    }
+  },
+  methods: {
+    async searchItunes(search: string): Promise<void> {
+      const value = await itunesSearch(search)
+      this.data = value
+      console.log("data", this.data)
+    }
   }
 });
 </script>
